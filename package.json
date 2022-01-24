@@ -1,7 +1,7 @@
 {
   "name": "typescript-node-starter",
   "version": "1.0.0",
-  "description": "Starter webpack, npm configs for TypeScript codebases targeting Node.",
+  "description": "Starter webpack config for TypeScript projects targeting Node.",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -13,7 +13,6 @@
   "author": "Jason Telfer",
   "license": "MIT",
   "devDependencies": {
-    "@types/graphql": "^14.5.0",
     "@typescript-eslint/eslint-plugin": "^5.10.0",
     "@typescript-eslint/parser": "^5.10.0",
     "eslint": "^8.7.0",
