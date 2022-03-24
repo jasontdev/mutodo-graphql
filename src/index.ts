@@ -1,19 +1,27 @@
-interface User {
-  id: number;
-  name: string;
-}
+import express from "express";
+import { graphqlHTTP } from "express-graphql";
+import { buildSchema } from "graphql";
 
-function printUser(user: User) {
-  console.log(`${user.name}`);
-}
+const schema = buildSchema(`
+    type Query {
+        hello: String
+    }
+`);
 
-function main() {
-  const user: User = {
-    id: 0,
-    name: "Alfred",
-  };
+const root = {
+  hello: () => {
+    return "Hello, world";
+  },
+};
 
-  printUser(user);
-}
+const app = express();
+app.use(
+  "/graphql",
+  graphqlHTTP({
+    schema,
+    rootValue: root,
+    graphiql: true,
+  })
+);
 
-main();
+app.listen(4100);
