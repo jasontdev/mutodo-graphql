@@ -3,7 +3,7 @@ import fs from "fs/promises";
 export default async function loadSecret(
   secretName: string,
   env: string
-): Promise<String> {
+): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
       if (env === "production") {

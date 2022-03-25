@@ -3,12 +3,15 @@ import { graphqlHTTP } from "express-graphql";
 import { buildSchema } from "graphql";
 import dotenv from "dotenv";
 import loadSecret from "./secrets";
+import jwt from "express-jwt";
 
-const schema = buildSchema(`
+const schema = buildSchema(
+  `
     type Query {
         hello: String
     }
-`);
+`
+);
 
 const root = {
   hello: () => {
@@ -18,18 +21,23 @@ const root = {
 
 (async () => {
   dotenv.config();
+  const app = express();
   try {
     if (process.env.NODE_ENV) {
       const jwtSecret = await loadSecret("jwt-secret", process.env.NODE_ENV);
-      console.log(`jwt-secret: ${jwtSecret}`);
+      app.use(
+        jwt({
+          secret: jwtSecret,
+          algorithms: ["HS256"],
+          credentialsRequired: false, // TODO enable in production
+        })
+      );
     } else {
-      console.log("Could not load jwt-secret");
     }
   } catch (error) {
-    console.log(`${error}`);
+    console.log(error);
   }
 
-  const app = express();
   app.use(
     "/graphql",
     graphqlHTTP({
