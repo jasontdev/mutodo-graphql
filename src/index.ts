@@ -4,20 +4,34 @@ import { buildSchema } from "graphql";
 import dotenv from "dotenv";
 import loadSecret from "./secrets";
 import jwt from "express-jwt";
+import { queries } from "./queries";
+import { mutations } from "./mutations";
 
 const schema = buildSchema(
   `
-    type Query {
-        hello: String
-    }
-`
-);
+  type User {
+    uuid: String
+    name: String
+    tasklists: [Tasklist]
+  }
 
-const root = {
-  hello: () => {
-    return "Hello, world";
-  },
-};
+  type Tasklist {
+    id: ID!
+    name: String
+    users: [User]
+  }
+   
+  type Query {
+    hello: String
+    tasklists: [Tasklist]
+  }
+
+  type Mutation {
+    newUser(name: String): User
+    newTasklist(name: String): Tasklist
+  }
+  `
+);
 
 (async () => {
   dotenv.config();
@@ -29,7 +43,6 @@ const root = {
         jwt({
           secret: jwtSecret,
           algorithms: ["HS256"],
-          credentialsRequired: false, // TODO enable in production
         })
       );
     } else {
@@ -42,8 +55,7 @@ const root = {
     "/graphql",
     graphqlHTTP({
       schema,
-      rootValue: root,
-      graphiql: true,
+      rootValue: { ...queries, ...mutations },
     })
   );
 
