@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { graphqlHTTP } from "express-graphql";
 import { buildSchema } from "graphql";
 import dotenv from "dotenv";
@@ -29,6 +30,7 @@ const schema = buildSchema(
   type Mutation {
     newUser(name: String): User
     newTasklist(name: String): Tasklist
+    removeTasklist(id: Int): Boolean
   }
   `
 );
@@ -36,6 +38,7 @@ const schema = buildSchema(
 (async () => {
   dotenv.config();
   const app = express();
+  app.use(cors());
   try {
     if (process.env.NODE_ENV) {
       const jwtSecret = await loadSecret("jwt-secret", process.env.NODE_ENV);

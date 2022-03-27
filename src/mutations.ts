@@ -33,6 +33,42 @@ const mutations = {
       resolve({ ...tasklist, users: users.map((user) => user.user) })
     );
   },
+  removeTasklist: async (
+    { id }: { id: number },
+    context: AuthorizedRequest
+  ) => {
+    const { sub } = context.user;
+    const prismaClient = new PrismaClient();
+
+    // if token subject is the only user of a tasklist then delete
+    // entry in relation table and tasklist. otherwise, just delete the
+    // relation so that the task remains for the other users
+
+    // find out if token subject is the only user of a tasklist
+    return new Promise((resolve, reject) => {
+      prismaClient.usersOfTasklists
+        .count({
+          where: { tasklistId: id },
+        })
+        .then((numTasklistUsers) => {
+          // disconnect user from tasklist
+          prismaClient.usersOfTasklists
+            .delete({
+              where: {
+                userUuid_tasklistId: { userUuid: sub, tasklistId: id },
+              },
+            })
+            .then(() => {
+              // remove tasklist when sub is the only user
+              if (numTasklistUsers === 1) {
+                prismaClient.tasklist.delete({ where: { id } });
+              }
+              resolve(true);
+            })
+            .catch(() => reject());
+        });
+    });
+  },
 };
 
 export { mutations };
