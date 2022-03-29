@@ -20,9 +20,9 @@ const mutations = {
       data: { name, users: { create: { userUuid: sub } } },
     });
 
-    // because users field in Tasklist links to a relation table (UsersOfTasklists), we have to fetch the users
+    // because users field in Tasklist links to a relation table (TasklistUser), we have to fetch the users
     // in a dedicated query
-    const users = await prismaClient.usersOfTasklists.findMany({
+    const users = await prismaClient.tasklistUser.findMany({
       where: { tasklistId: tasklist.id },
       include: { user: true },
     });
@@ -46,13 +46,13 @@ const mutations = {
 
     // find out if token subject is the only user of a tasklist
     return new Promise((resolve, reject) => {
-      prismaClient.usersOfTasklists
+      prismaClient.tasklistUser
         .count({
           where: { tasklistId: id },
         })
         .then((numTasklistUsers) => {
           // disconnect user from tasklist
-          prismaClient.usersOfTasklists
+          prismaClient.tasklistUser
             .delete({
               where: {
                 userUuid_tasklistId: { userUuid: sub, tasklistId: id },

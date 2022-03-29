@@ -13,16 +13,16 @@ datasource db {
 model User {
     uuid String @id
     name String
-    tasklists UsersOfTasklists[]
+    tasklists TasklistUser[]
 }
 
 model Tasklist {
     id Int @id @default(autoincrement()) 
     name String
-    users UsersOfTasklists[]
+    users TasklistUser[]
 }
 
-model UsersOfTasklists {
+model TasklistUser {
     user User @relation(fields: [userUuid], references: [uuid])
     tasklist Tasklist @relation(fields: [tasklistId], references: [id])
     userUuid String @unique

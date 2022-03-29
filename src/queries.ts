@@ -9,7 +9,7 @@ const queries = {
     return new Promise(async (resolve) => {
       const { sub } = context.user;
       const prismaClient = new PrismaClient();
-      const tasklists = await prismaClient.usersOfTasklists.findMany({
+      const tasklists = await prismaClient.tasklistUser.findMany({
         where: { userUuid: sub },
         include: { tasklist: true },
       });
