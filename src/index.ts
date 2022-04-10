@@ -5,6 +5,7 @@ import { buildSchema } from "graphql";
 import dotenv from "dotenv";
 import loadSecret from "./secrets";
 import jwt from "express-jwt";
+import jwksRsa from "jwks-rsa";
 import { queries } from "./queries";
 import { mutations } from "./mutations";
 
@@ -41,11 +42,17 @@ const schema = buildSchema(
   app.use(cors());
   try {
     if (process.env.NODE_ENV) {
-      const jwtSecret = await loadSecret("jwt-secret", process.env.NODE_ENV);
+      const issuer = await loadSecret("jwt-issuer", process.env.NODE_ENV);
       app.use(
         jwt({
-          secret: jwtSecret,
-          algorithms: ["HS256"],
+          secret: jwksRsa.expressJwtSecret({
+            cache: true,
+            rateLimit: true,
+            jwksRequestsPerMinute: 5,
+            jwksUri: `${issuer}/.well-known/jwks.json`,
+          }),
+          algorithms: ["RS256"],
+          issuer,
         })
       );
     } else {
