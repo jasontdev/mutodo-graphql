@@ -17,7 +17,7 @@ class DatabaseClient {
     this.#secretAccessKey = secretAccessKey;
   }
 
-  get get() {
+  get(): DynamoDBClient {
     return new DynamoDBClient({
       region: this.#region,
       credentials: {

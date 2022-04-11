@@ -3,11 +3,11 @@ import cors from "cors";
 import { graphqlHTTP } from "express-graphql";
 import { buildSchema } from "graphql";
 import dotenv from "dotenv";
-import loadSecret from "./secrets";
 import jwt from "express-jwt";
 import jwksRsa from "jwks-rsa";
 import { queries } from "./queries";
 import { mutations } from "./mutations";
+import DatabaseClient from "./DatabaseClient";
 
 const schema = buildSchema(
   `
@@ -42,7 +42,20 @@ const schema = buildSchema(
   app.use(cors());
   try {
     if (process.env.NODE_ENV) {
-      const issuer = await loadSecret("jwt-issuer", process.env.NODE_ENV);
+      const ddbAccessKeyId = process.env.DYNAMODB_ACCESS_KEY_ID;
+      const ddbSecretAccessKey = process.env.DYNAMODB_SECRET_ACCESS_KEY;
+      const ddbRegion = process.env.DYNAMODB_REGION;
+      const issuer = process.env.JWT_ISSUER;
+
+      if (ddbAccessKeyId && ddbSecretAccessKey && ddbRegion && issuer) {
+        // needs to be global
+        const databaseClient = new DatabaseClient({
+          region: ddbRegion,
+          accessKeyId: ddbAccessKeyId,
+          secretAccessKey: ddbSecretAccessKey,
+        });
+      }
+
       app.use(
         jwt({
           secret: jwksRsa.expressJwtSecret({
@@ -58,7 +71,7 @@ const schema = buildSchema(
     } else {
     }
   } catch (error) {
-    console.log(error);
+    console.log(`error: ${error}`);
   }
 
   app.use(
