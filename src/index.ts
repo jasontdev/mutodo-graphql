@@ -48,8 +48,8 @@ const schema = buildSchema(
       const issuer = process.env.JWT_ISSUER;
 
       if (ddbAccessKeyId && ddbSecretAccessKey && ddbRegion && issuer) {
-        // needs to be global
-        const databaseClient = new DatabaseClient({
+        // TODO: find alternative to global variable
+        global.databaseClient = new DatabaseClient({
           region: ddbRegion,
           accessKeyId: ddbAccessKeyId,
           secretAccessKey: ddbSecretAccessKey,
