@@ -12,7 +12,7 @@ import DatabaseClient from "./DatabaseClient";
 const schema = buildSchema(
   `
   type User {
-    uuid: String
+    id: String
     name: String
     tasklists: [Tasklist]
   }
@@ -26,6 +26,7 @@ const schema = buildSchema(
   type Query {
     hello: String
     tasklists: [Tasklist]
+    user: User
   }
 
   type Mutation {

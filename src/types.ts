@@ -8,4 +8,4 @@ interface AuthorizedRequest extends Request {
   user: AuthorizedUser;
 }
 
-export { AuthorizedRequest };
+export { AuthorizedRequest, AuthorizedUser };
