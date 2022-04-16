@@ -2,11 +2,14 @@ import {
   CreateTableCommand,
   DeleteTableCommand,
   ListTablesCommand,
+  PutItemCommand,
 } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import DatabaseClient from "../DatabaseClient";
 import { userRepository } from "../user-repository";
 
 beforeAll(async () => {
+  // TODO: load test keys and endpoint from .env.test
   global.databaseClient = new DatabaseClient({
     endpoint: "http://localhost:8000",
     region: "ap-southeast-2",
@@ -14,6 +17,8 @@ beforeAll(async () => {
     secretAccessKey: "abcd1234",
   });
 
+  // Check if table already exists. This should not be the case as we
+  // delete the table in afterEach
   const list = await databaseClient.get().send(
     new ListTablesCommand({
       Limit: 1,
@@ -58,5 +63,25 @@ test("create a new user", async () => {
   const data = await userRepository.save({ name: "Alfred" }, authorizedUser);
   if (data.Attributes) {
     expect(data.Attributes.id).toBe("User_" + authorizedUser.sub);
+  }
+});
+
+test("read user", async () => {
+  const authorizedUser = { sub: "abcd1234" };
+  const documentClient = DynamoDBDocumentClient.from(databaseClient.get());
+  await documentClient.send(
+    new PutCommand({
+      TableName: "mutodo",
+      Item: {
+        id: `User_${authorizedUser.sub}`,
+        sort_key: authorizedUser.sub,
+        name: "Jason",
+      },
+    })
+  );
+
+  const data = await userRepository.read(authorizedUser);
+  if (data) {
+    expect(data.name).toBe("Jason");
   }
 });
