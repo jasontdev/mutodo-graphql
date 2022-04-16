@@ -1,5 +1,6 @@
 import {
   CreateTableCommand,
+  DeleteTableCommand,
   ListTablesCommand,
 } from "@aws-sdk/client-dynamodb";
 import DatabaseClient from "../DatabaseClient";
@@ -22,7 +23,7 @@ beforeAll(async () => {
   if (list.TableNames) {
     if (list.TableNames[0] !== "mutodo") {
       console.log("Creating table...");
-      databaseClient.get().send(
+      await databaseClient.get().send(
         new CreateTableCommand({
           TableName: "mutodo",
           KeySchema: [
@@ -41,6 +42,15 @@ beforeAll(async () => {
       );
     }
   }
+});
+
+afterAll(async () => {
+  const ddbClient = databaseClient.get();
+  await ddbClient.send(
+    new DeleteTableCommand({
+      TableName: "mutodo",
+    })
+  );
 });
 
 test("create a new user", async () => {
