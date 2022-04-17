@@ -4,12 +4,7 @@ import {
   PutCommand,
 } from "@aws-sdk/lib-dynamodb";
 
-import { AuthorizedUser } from "./types";
-
-type User = {
-  id?: string;
-  name: string;
-};
+import { AuthorizedUser, User } from "./types";
 
 const userRepository = {
   save: async function ({ name }: User, { sub }: AuthorizedUser) {

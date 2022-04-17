@@ -2,10 +2,10 @@ import {
   CreateTableCommand,
   DeleteTableCommand,
   ListTablesCommand,
-  PutItemCommand,
 } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import DatabaseClient from "../DatabaseClient";
+import tasklistRepository from "../tasklist-repository";
 import { userRepository } from "../user-repository";
 
 beforeAll(async () => {
@@ -27,7 +27,6 @@ beforeAll(async () => {
 
   if (list.TableNames) {
     if (list.TableNames[0] !== "mutodo") {
-      console.log("Creating table...");
       await databaseClient.get().send(
         new CreateTableCommand({
           TableName: "mutodo",
@@ -84,4 +83,10 @@ test("read user", async () => {
   if (data) {
     expect(data.name).toBe("Jason");
   }
+});
+
+test("create tasklist", async () => {
+  const tasklist = { name: "Test tasklist" };
+  const data = await tasklistRepository.create(tasklist, { sub: "abcd1234" });
+  expect(data.id).not.toBeNull();
 });

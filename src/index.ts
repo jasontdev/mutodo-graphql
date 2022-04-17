@@ -29,9 +29,13 @@ const schema = buildSchema(
     user: User
   }
 
+  type Id {
+    id: String
+  }
+
   type Mutation {
     newUser(name: String): User
-    newTasklist(name: String): Tasklist
+    newTasklist(name: String): Id
     removeTasklist(id: Int): Boolean
   }
   `
