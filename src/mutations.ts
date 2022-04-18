@@ -7,13 +7,15 @@ const mutations = {
     { name, username }: CreateTasklistInput,
     context: AuthorizedRequest
   ) => {
-    const data = await createTasklist({ name, username }, context.user);
-    console.log(data);
+    const data = await createTasklist(
+      { name, username },
+      "mutodo",
+      context.user
+    );
     return data;
   },
   newTask: async (task: CreateTaskInput, context: AuthorizedRequest) => {
-    const data = await createTask(task, context.user);
-    console.log(data);
+    const data = await createTask(task, "mutodo", context.user);
     return data;
   },
 };

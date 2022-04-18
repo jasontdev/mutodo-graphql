@@ -4,6 +4,7 @@ import { AuthorizedUser, CreateTasklistInput, CreateTaskInput } from "./types";
 
 async function createTasklist(
   tasklist: CreateTasklistInput,
+  tableName: string,
   authorizedUser: AuthorizedUser
 ) {
   const uuid = randomUUID();
@@ -12,7 +13,7 @@ async function createTasklist(
 
   try {
     await documentClient.put({
-      TableName: "mutodo",
+      TableName: tableName,
       Item: {
         id: `tasklist_${uuid}`,
         sort_key: `user_${authorizedUser.sub}`,
@@ -21,7 +22,7 @@ async function createTasklist(
     });
 
     await documentClient.put({
-      TableName: "mutodo",
+      TableName: tableName,
       Item: {
         id: `user_${authorizedUser.sub}`,
         sort_key: `tasklist_${uuid}`,
@@ -38,13 +39,16 @@ async function createTasklist(
   }
 }
 
-async function readTasklists(authorizedUser: AuthorizedUser) {
+async function readTasklists(
+  tableName: string,
+  authorizedUser: AuthorizedUser
+) {
   const ddbClient = databaseClient.get();
   const documentClient = DynamoDBDocument.from(ddbClient);
 
   try {
     const data = await documentClient.query({
-      TableName: "mutodo",
+      TableName: tableName,
       KeyConditionExpression: "id = :userId and begins_with(sort_key, :prefix)",
       ExpressionAttributeValues: {
         ":userId": `user_${authorizedUser.sub}`,
@@ -67,6 +71,7 @@ async function readTasklists(authorizedUser: AuthorizedUser) {
 
 async function createTask(
   { tasklist, name }: CreateTaskInput,
+  tableName: string,
   authorizedUser: AuthorizedUser
 ) {
   const ddbClient = databaseClient.get();
@@ -75,7 +80,7 @@ async function createTask(
   // first we need to make sure the user has access to the tasklist
   try {
     const data = await documentClient.query({
-      TableName: "mutodo",
+      TableName: tableName,
       KeyConditionExpression: "id = :tasklist and sort_key = :user",
       ExpressionAttributeValues: {
         ":tasklist": tasklist,
@@ -90,7 +95,7 @@ async function createTask(
 
     const uuid = randomUUID();
     const result = await documentClient.put({
-      TableName: "mutodo",
+      TableName: tableName,
       Item: { id: tasklist, sort_key: `task_${uuid}`, name },
     });
 
@@ -108,6 +113,7 @@ async function createTask(
 
 async function readTasks(
   { tasklist }: { tasklist: string },
+  tableName: string,
   authorizedUser: AuthorizedUser
 ) {
   const ddbClient = databaseClient.get();
@@ -116,7 +122,7 @@ async function readTasks(
   try {
     // first query is a check for permission to access tasklist
     const result = await documentClient.query({
-      TableName: "mutodo",
+      TableName: tableName,
       KeyConditionExpression: "id = :username and sort_key = :tasklist",
       ExpressionAttributeValues: {
         ":username": `user_${authorizedUser.sub}`,
@@ -131,7 +137,7 @@ async function readTasks(
 
     // retrieve all tasks in a tasklist
     const data = await documentClient.query({
-      TableName: "mutodo",
+      TableName: tableName,
       KeyConditionExpression:
         "id = :tasklist and begins_with(sort_key, :prefix)",
       ExpressionAttributeValues: {

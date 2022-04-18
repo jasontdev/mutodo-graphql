@@ -6,15 +6,14 @@ const queries = {
     return "Hello, world";
   },
   tasklists: async (_: undefined, context: AuthorizedRequest) => {
-    const data = await readTasklists(context.user);
+    const data = await readTasklists("mutodo", context.user);
     return data;
   },
   tasks: async (
     { tasklist }: { tasklist: string },
     context: AuthorizedRequest
   ) => {
-    const data = await readTasks({ tasklist }, context.user);
-    console.log(data);
+    const data = await readTasks({ tasklist }, "mutodo", context.user);
     return data;
   },
 };
