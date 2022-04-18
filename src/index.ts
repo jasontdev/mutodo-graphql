@@ -34,7 +34,6 @@ const schema = buildSchema(
   }
 
   type Mutation {
-    newUser(name: String): User
     newTasklist(name: String): Id
     removeTasklist(id: Int): Boolean
   }

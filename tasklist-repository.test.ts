@@ -3,10 +3,7 @@ import {
   DeleteTableCommand,
   ListTablesCommand,
 } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
-import DatabaseClient from "../DatabaseClient";
-import tasklistRepository from "../tasklist-repository";
-import { userRepository } from "../user-repository";
+import DatabaseClient from "./src/DatabaseClient";
 
 beforeAll(async () => {
   // TODO: load test keys and endpoint from .env.test
@@ -55,38 +52,4 @@ afterAll(async () => {
       TableName: "mutodo",
     })
   );
-});
-
-test("create a new user", async () => {
-  const authorizedUser = { sub: "abcd1234" };
-  const data = await userRepository.save({ name: "Alfred" }, authorizedUser);
-  if (data.Attributes) {
-    expect(data.Attributes.id).toBe("User_" + authorizedUser.sub);
-  }
-});
-
-test("read user", async () => {
-  const authorizedUser = { sub: "abcd1234" };
-  const documentClient = DynamoDBDocumentClient.from(databaseClient.get());
-  await documentClient.send(
-    new PutCommand({
-      TableName: "mutodo",
-      Item: {
-        id: `User_${authorizedUser.sub}`,
-        sort_key: authorizedUser.sub,
-        name: "Jason",
-      },
-    })
-  );
-
-  const data = await userRepository.read(authorizedUser);
-  if (data) {
-    expect(data.name).toBe("Jason");
-  }
-});
-
-test("create tasklist", async () => {
-  const tasklist = { name: "Test tasklist" };
-  const data = await tasklistRepository.create(tasklist, { sub: "abcd1234" });
-  expect(data.id).not.toBeNull();
 });

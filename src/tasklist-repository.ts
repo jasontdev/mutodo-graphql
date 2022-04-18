@@ -12,15 +12,22 @@ const tasklistRepository = {
       await documentClient.put({
         TableName: "mutodo",
         Item: {
-          id: `tasklist_{uuid}`,
-          sort_key: uuid,
+          id: `tasklist_${uuid}`,
+          sort_key: `user_${authorizedUser.sub}`,
           name: tasklist.name,
-          users: [`user_${authorizedUser.sub}`],
+        },
+      });
+
+      await documentClient.put({
+        TableName: "mutodo",
+        Item: {
+          id: `user_${authorizedUser.sub}`,
+          sort_key: `tasklist_${uuid}`,
         },
       });
       documentClient.destroy();
       ddbClient.destroy();
-      return { id: `tasklist_{uuid}` };
+      return { id: `tasklist_${uuid}` };
     } catch (error) {
       documentClient.destroy();
       ddbClient.destroy();
