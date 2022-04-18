@@ -1,8 +1,11 @@
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "crypto";
-import { AuthorizedUser, Tasklist } from "./types";
+import { AuthorizedUser, CreateTasklistInput } from "./types";
 
-async function create(tasklist: Tasklist, authorizedUser: AuthorizedUser) {
+async function createTasklist(
+  tasklist: CreateTasklistInput,
+  authorizedUser: AuthorizedUser
+) {
   const uuid = randomUUID();
   const ddbClient = databaseClient.get();
   const documentClient = DynamoDBDocument.from(ddbClient);
@@ -22,16 +25,18 @@ async function create(tasklist: Tasklist, authorizedUser: AuthorizedUser) {
       Item: {
         id: `user_${authorizedUser.sub}`,
         sort_key: `tasklist_${uuid}`,
+        name: tasklist.username,
       },
     });
     documentClient.destroy();
     ddbClient.destroy();
     return { id: `tasklist_${uuid}` };
   } catch (error) {
+    console.log(error);
     documentClient.destroy();
     ddbClient.destroy();
     return { id: null };
   }
 }
 
-export { create };
+export { createTasklist };

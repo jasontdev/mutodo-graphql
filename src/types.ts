@@ -2,6 +2,7 @@ import { Request } from "express";
 
 type AuthorizedUser = {
   sub: string;
+  preferred_username: string;
 };
 
 interface AuthorizedRequest extends Request {
@@ -17,7 +18,16 @@ type Tasklist = {
   id?: string;
   name: string;
   users?: [User];
-  sort_key?: string;
 };
 
-export { AuthorizedRequest, AuthorizedUser, User, Tasklist };
+type CreateTasklistInput = {
+  name: string;
+  username: string;
+};
+export {
+  AuthorizedRequest,
+  AuthorizedUser,
+  User,
+  Tasklist,
+  CreateTasklistInput,
+};

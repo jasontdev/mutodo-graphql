@@ -26,7 +26,6 @@ const schema = buildSchema(
   type Query {
     hello: String
     tasklists: [Tasklist]
-    user: User
   }
 
   type Id {
@@ -34,8 +33,7 @@ const schema = buildSchema(
   }
 
   type Mutation {
-    newTasklist(name: String): Id
-    removeTasklist(id: Int): Boolean
+    newTasklist(name: String, username: String): Id
   }
   `
 );
