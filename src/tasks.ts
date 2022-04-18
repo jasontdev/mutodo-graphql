@@ -105,4 +105,51 @@ async function createTask(
   }
 }
 
-export { createTasklist, readTasklists, createTask };
+async function readTasks(
+  { tasklist }: { tasklist: string },
+  authorizedUser: AuthorizedUser
+) {
+  const ddbClient = databaseClient.get();
+  const documentClient = DynamoDBDocument.from(ddbClient);
+
+  try {
+    // first query is a check for permission to access tasklist
+    const result = await documentClient.query({
+      TableName: "mutodo",
+      KeyConditionExpression: "id = :username and sort_key = :tasklist",
+      ExpressionAttributeValues: {
+        ":username": `user_${authorizedUser.sub}`,
+        ":tasklist": tasklist,
+      },
+    });
+
+    // user does not have access to tasklist
+    if (!result || !result.Items) {
+      return null;
+    }
+
+    // retrieve all tasks in a tasklist
+    const data = await documentClient.query({
+      TableName: "mutodo",
+      KeyConditionExpression:
+        "id = :tasklist and begins_with(sort_key, :prefix)",
+      ExpressionAttributeValues: {
+        ":tasklist": tasklist,
+        ":prefix": "task_",
+      },
+    });
+
+    if (!data || !data.Items) {
+      return null;
+    }
+
+    return data.Items;
+  } catch (error) {
+    return null;
+  } finally {
+    documentClient.destroy();
+    ddbClient.destroy();
+  }
+}
+
+export { createTasklist, readTasklists, readTasks, createTask };

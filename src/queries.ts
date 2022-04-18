@@ -1,5 +1,5 @@
 import { AuthorizedRequest } from "./types";
-import { readTasklists } from "./tasks";
+import { readTasks, readTasklists } from "./tasks";
 
 const queries = {
   hello: () => {
@@ -7,6 +7,14 @@ const queries = {
   },
   tasklists: async (_: undefined, context: AuthorizedRequest) => {
     const data = await readTasklists(context.user);
+    return data;
+  },
+  tasks: async (
+    { tasklist }: { tasklist: string },
+    context: AuthorizedRequest
+  ) => {
+    const data = await readTasks({ tasklist }, context.user);
+    console.log(data);
     return data;
   },
 };

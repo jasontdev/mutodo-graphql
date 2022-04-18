@@ -16,6 +16,11 @@ const schema = buildSchema(
     name: String
     tasklists: [Tasklist]
   }
+  
+  type Task {
+    id: String
+    name: String
+  }
 
   type Tasklist {
     id: ID!
@@ -26,6 +31,7 @@ const schema = buildSchema(
   type Query {
     hello: String
     tasklists: [Tasklist]
+    tasks(tasklist: String): [Task]
   }
 
   type Id {
