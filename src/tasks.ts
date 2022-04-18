@@ -28,14 +28,13 @@ async function createTasklist(
         name: tasklist.name,
       },
     });
-    documentClient.destroy();
-    ddbClient.destroy();
     return { id: `tasklist_${uuid}` };
   } catch (error) {
     console.log(error);
+    return { id: null };
+  } finally {
     documentClient.destroy();
     ddbClient.destroy();
-    return { id: null };
   }
 }
 
@@ -60,6 +59,9 @@ async function readTasklists(authorizedUser: AuthorizedUser) {
   } catch (error) {
     console.log(error);
     return null;
+  } finally {
+    documentClient.destroy();
+    ddbClient.destroy();
   }
 }
 
@@ -85,23 +87,22 @@ async function createTask(
     if (!data || !data.Items) {
       return null;
     }
-  } catch (error) {
-    return null;
-  }
 
-  const uuid = randomUUID();
-  try {
-    const data = await documentClient.put({
+    const uuid = randomUUID();
+    const result = await documentClient.put({
       TableName: "mutodo",
       Item: { id: tasklist, sort_key: `task_${uuid}`, name },
     });
 
-    if (!data) {
+    if (!result) {
       return null;
     }
     return { id: `task_${uuid}` };
   } catch (error) {
     return null;
+  } finally {
+    documentClient.destroy();
+    ddbClient.destroy();
   }
 }
 
