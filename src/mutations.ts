@@ -1,5 +1,5 @@
 import { AuthorizedRequest } from "./types";
-import { createTasklist, createTask } from "./tasklist-repository";
+import { createTasklist, createTask } from "./tasks";
 import { CreateTasklistInput, CreateTaskInput } from "./types";
 
 const mutations = {

@@ -3,7 +3,7 @@ import {
   DeleteTableCommand,
   ListTablesCommand,
 } from "@aws-sdk/client-dynamodb";
-import DatabaseClient from "./src/DatabaseClient";
+import DatabaseClient from "../DatabaseClient";
 
 beforeAll(async () => {
   // TODO: load test keys and endpoint from .env.test

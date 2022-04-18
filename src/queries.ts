@@ -1,5 +1,5 @@
 import { AuthorizedRequest } from "./types";
-import { readTasklists } from "./tasklist-repository";
+import { readTasklists } from "./tasks";
 
 const queries = {
   hello: () => {
