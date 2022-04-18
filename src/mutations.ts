@@ -1,6 +1,6 @@
 import { AuthorizedRequest } from "./types";
-import { createTasklist } from "./tasklist-repository";
-import { CreateTasklistInput } from "./types";
+import { createTasklist, createTask } from "./tasklist-repository";
+import { CreateTasklistInput, CreateTaskInput } from "./types";
 
 const mutations = {
   newTasklist: async (
@@ -11,11 +11,10 @@ const mutations = {
     console.log(data);
     return data;
   },
-  removeTasklist: async (
-    { id }: { id: number },
-    context: AuthorizedRequest
-  ) => {
-    const { sub } = context.user;
+  newTask: async (task: CreateTaskInput, context: AuthorizedRequest) => {
+    const data = await createTask(task, context.user);
+    console.log(data);
+    return data;
   },
 };
 

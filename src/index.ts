@@ -34,6 +34,7 @@ const schema = buildSchema(
 
   type Mutation {
     newTasklist(name: String, username: String): Id
+    newTask(tasklist: String, name: String): Id
   }
   `
 );

@@ -64,18 +64,36 @@ async function readTasklists(authorizedUser: AuthorizedUser) {
 }
 
 async function createTask(
-  task: CreateTaskInput,
+  { tasklist, name }: CreateTaskInput,
   authorizedUser: AuthorizedUser
 ) {
   const ddbClient = databaseClient.get();
   const documentClient = DynamoDBDocument.from(ddbClient);
 
-  // TODO make sure user is in tasklist before adding task
+  // first we need to make sure the user has access to the tasklist
+  try {
+    const data = await documentClient.query({
+      TableName: "mutodo",
+      KeyConditionExpression: "id = :tasklist and sort_key = :user",
+      ExpressionAttributeValues: {
+        ":tasklist": tasklist,
+        ":user": `user_${authorizedUser.sub}`,
+      },
+    });
+
+    // if item does not exist then user does not have access to tasklist
+    if (!data || !data.Items) {
+      return null;
+    }
+  } catch (error) {
+    return null;
+  }
+
   const uuid = randomUUID();
   try {
     const data = await documentClient.put({
       TableName: "mutodo",
-      Item: { sort_key: `task_${uuid}`, ...task },
+      Item: { id: tasklist, sort_key: `task_${uuid}`, name },
     });
 
     if (!data) {
@@ -87,4 +105,4 @@ async function createTask(
   }
 }
 
-export { createTasklist, readTasklists };
+export { createTasklist, readTasklists, createTask };

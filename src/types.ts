@@ -27,7 +27,7 @@ type CreateTasklistInput = {
 
 type CreateTaskInput = {
   name: string;
-  id: string;
+  tasklist: string;
 };
 
 export {
