@@ -1,6 +1,6 @@
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "crypto";
-import { AuthorizedUser, CreateTasklistInput, Tasklist } from "./types";
+import { AuthorizedUser, CreateTasklistInput, CreateTaskInput } from "./types";
 
 async function createTasklist(
   tasklist: CreateTasklistInput,
@@ -56,10 +56,33 @@ async function readTasklists(authorizedUser: AuthorizedUser) {
     if (!data || !data.Items) {
       return null;
     }
-    console.log(data.Items);
     return data.Items.map((item) => ({ id: item.sort_key, name: item.name }));
   } catch (error) {
     console.log(error);
+    return null;
+  }
+}
+
+async function createTask(
+  task: CreateTaskInput,
+  authorizedUser: AuthorizedUser
+) {
+  const ddbClient = databaseClient.get();
+  const documentClient = DynamoDBDocument.from(ddbClient);
+
+  // TODO make sure user is in tasklist before adding task
+  const uuid = randomUUID();
+  try {
+    const data = await documentClient.put({
+      TableName: "mutodo",
+      Item: { sort_key: `task_${uuid}`, ...task },
+    });
+
+    if (!data) {
+      return null;
+    }
+    return { id: `task_${uuid}` };
+  } catch (error) {
     return null;
   }
 }

@@ -24,10 +24,17 @@ type CreateTasklistInput = {
   name: string;
   username: string;
 };
+
+type CreateTaskInput = {
+  name: string;
+  id: string;
+};
+
 export {
   AuthorizedRequest,
   AuthorizedUser,
   User,
   Tasklist,
   CreateTasklistInput,
+  CreateTaskInput,
 };
