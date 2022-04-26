@@ -150,7 +150,7 @@ async function readTasks(
       return null;
     }
 
-    return data.Items;
+    return data.Items.map((item) => ({ id: item.sort_key, name: item.name }));
   } catch (error) {
     return null;
   } finally {
@@ -159,4 +159,41 @@ async function readTasks(
   }
 }
 
-export { createTasklist, readTasklists, readTasks, createTask };
+async function deleteTask(
+  tasklistId: string,
+  taskId: string,
+  table: string,
+  user: AuthorizedUser
+) {
+  const ddbClient = databaseClient.get();
+  const documentClient = DynamoDBDocument.from(ddbClient);
+
+  try {
+    const userHasTasklist = await documentClient.get({
+      TableName: table,
+      Key: { id: `user_${user.sub}`, sort_key: tasklistId },
+    });
+
+    // test if user has access to tasklist
+    if (!userHasTasklist || !userHasTasklist.Item) {
+      return null;
+    }
+
+    const deletedTask = await documentClient.delete({
+      TableName: table,
+      Key: {
+        id: tasklistId,
+        sort_key: taskId,
+      },
+    });
+
+    if (deletedTask) {
+      return { id: taskId };
+    }
+    return null;
+  } catch (error) {
+    return null;
+  }
+}
+
+export { createTasklist, readTasklists, readTasks, createTask, deleteTask };
