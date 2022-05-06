@@ -243,7 +243,7 @@ async function updateTask(tableName: string, task: Task, user: AuthorizedUser) {
     "Set " + taskKeys.map((key) => `#${key} = :${key}`).join(", ");
 
   const data = await documentClient.update({
-    Key: { id: task.id, sort_key: task.tasklistId },
+    Key: { id: task.tasklistId, sort_key: task.id },
     TableName: tableName,
     UpdateExpression: updateExpression,
     ExpressionAttributeValues: expressionAttributeValues,
