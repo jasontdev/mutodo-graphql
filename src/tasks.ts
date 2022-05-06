@@ -196,4 +196,71 @@ async function deleteTask(
   }
 }
 
-export { createTasklist, readTasklists, readTasks, createTask, deleteTask };
+// TODO: let's have one definition of a task that we can use for input and output
+type Task = {
+  id: string;
+  tasklistId: string;
+  name: string;
+  isComplete: boolean;
+};
+
+async function updateTask(tableName: string, task: Task, user: AuthorizedUser) {
+  const ddbClient = databaseClient.get();
+  const documentClient = DynamoDBDocument.from(ddbClient);
+
+  // security check
+  // TODO security check should be a helper function
+  const userHasTasklist = await documentClient.get({
+    TableName: tableName,
+    Key: { id: `user_${user.sub}`, sort_key: task.tasklistId },
+  });
+
+  // test if user has access to tasklist
+  if (!userHasTasklist || !userHasTasklist.Item) {
+    return null;
+  }
+
+  type TaskKey = keyof Task;
+  const taskKeys: TaskKey[] = [];
+  let key: TaskKey;
+  for (key in task) {
+    // we must exclude id as DynamoDB won't allow update of primary key values
+    if (key != "id") {
+      taskKeys.push(key);
+    }
+  }
+
+  const expressionAttributeValues: any = {};
+  taskKeys.forEach((key) => {
+    expressionAttributeValues[`:${key}`] = `${task[key]}`;
+  });
+
+  // unfortunately, we need to use ExpressionAttributesNames because DynamoDB won't allow some attribute
+  // names like 'name' in expression as they clash with one of the 500+ reserved words
+  const expressionAttributeNames: any = {};
+  taskKeys.forEach((key) => (expressionAttributeNames[`#${key}`] = key));
+  const updateExpression =
+    "Set " + taskKeys.map((key) => `#${key} = :${key}`).join(", ");
+
+  const data = await documentClient.update({
+    Key: { id: task.id, sort_key: task.tasklistId },
+    TableName: tableName,
+    UpdateExpression: updateExpression,
+    ExpressionAttributeValues: expressionAttributeValues,
+    ExpressionAttributeNames: expressionAttributeNames,
+  });
+
+  if (!data || !data.Attributes) {
+    return null;
+  }
+  return data.Attributes;
+}
+
+export {
+  createTasklist,
+  readTasklists,
+  readTasks,
+  createTask,
+  deleteTask,
+  updateTask,
+};

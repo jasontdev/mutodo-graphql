@@ -19,7 +19,16 @@ const schema = buildSchema(
   
   type Task {
     id: String
+    tasklistId: String
     name: String
+    isComplete: Boolean
+  }
+
+  input TaskInput {
+    id: String
+    tasklistId: String
+    name: String
+    isComplete: Boolean
   }
 
   type Tasklist {
@@ -39,9 +48,10 @@ const schema = buildSchema(
   }
 
   type Mutation {
+    deleteTask(tasklist: String, task: String): Id
     newTasklist(name: String, username: String): Id
     newTask(tasklist: String, name: String): Id
-    deleteTask(tasklist: String, task: String): Id
+    updateTask(task: TaskInput): Task
   }
   `
 );

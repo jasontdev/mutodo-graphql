@@ -1,6 +1,13 @@
 import { AuthorizedRequest } from "./types";
-import { createTasklist, createTask, deleteTask } from "./tasks";
+import { createTasklist, createTask, deleteTask, updateTask } from "./tasks";
 import { CreateTasklistInput, CreateTaskInput } from "./types";
+
+type Task = {
+  id: string;
+  tasklistId: string;
+  name: string;
+  isComplete: boolean;
+};
 
 const mutations = {
   newTasklist: async (
@@ -30,6 +37,10 @@ const mutations = {
   ) => {
     const data = await deleteTask(tasklist, task, "mutodo", context.user);
     return data;
+  },
+  updateTask: async ({task}: {task: Task}, context: AuthorizedRequest) => {
+    console.log(task);
+    return updateTask("mutodo", task, context.user);
   },
 };
 
