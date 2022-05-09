@@ -1,5 +1,6 @@
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "crypto";
+import { abort } from "process";
 import { AuthorizedUser, CreateTasklistInput, CreateTaskInput } from "./types";
 
 async function createTasklist(
@@ -260,12 +261,20 @@ async function updateTask(tableName: string, task: Task, user: AuthorizedUser) {
     UpdateExpression: updateExpression,
     ExpressionAttributeValues: expressionAttributeValues,
     ExpressionAttributeNames: expressionAttributeNames,
+    ReturnValues: "ALL_NEW",
   });
 
   if (!data || !data.Attributes) {
     return null;
   }
-  return data.Attributes;
+
+  // TODO need cleaner way of doing this. should use a helper fn too
+  return {
+    id: data.Attributes.sort_key,
+    tasklistId: data.Attributes.id,
+    name: data.Attributes.name,
+    isComplete: data.Attributes.isComplete === "true" ? true : false,
+  };
 }
 
 export {

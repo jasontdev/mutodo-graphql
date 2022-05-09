@@ -36,11 +36,12 @@ const mutations = {
     context: AuthorizedRequest
   ) => {
     const data = await deleteTask(tasklist, task, "mutodo", context.user);
-    return data;
+    return data
   },
   updateTask: async ({task}: {task: Task}, context: AuthorizedRequest) => {
-    console.log(task);
-    return updateTask("mutodo", task, context.user);
+    const data = await updateTask("mutodo", task, context.user);
+    console.log(data);
+    return data;
   },
 };
 
