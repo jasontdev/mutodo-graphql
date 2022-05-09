@@ -50,7 +50,7 @@ const schema = buildSchema(
   type Mutation {
     deleteTask(tasklist: String, task: String): Id
     newTasklist(name: String, username: String): Id
-    newTask(tasklist: String, name: String): Id
+    newTask(tasklist: String, name: String): Task
     updateTask(task: TaskInput): Task
   }
   `

@@ -94,15 +94,27 @@ async function createTask(
     }
 
     const uuid = randomUUID();
+    const newTask = {
+      id: tasklist,
+      sort_key: `task_${uuid}`,
+      name,
+      isComplete: false,
+      tasklistId: `task_${uuid}`,
+    };
     const result = await documentClient.put({
       TableName: tableName,
-      Item: { id: tasklist, sort_key: `task_${uuid}`, name },
+      Item: newTask,
     });
 
     if (!result) {
       return null;
     }
-    return { id: `task_${uuid}` };
+    return {
+      id: newTask.sort_key,
+      tasklistId: newTask.id,
+      isComplete: newTask.isComplete,
+      name: newTask.name,
+    };
   } catch (error) {
     return null;
   } finally {
