@@ -40,7 +40,6 @@ const mutations = {
   },
   updateTask: async ({task}: {task: Task}, context: AuthorizedRequest) => {
     const data = await updateTask("mutodo", task, context.user);
-    console.log(data);
     return data;
   },
 };
