@@ -1,60 +1,9 @@
 import express from "express";
 import cors from "cors";
-import { graphqlHTTP } from "express-graphql";
-import { buildSchema } from "graphql";
 import dotenv from "dotenv";
 import jwt from "express-jwt";
 import jwksRsa from "jwks-rsa";
-import { queries } from "./queries";
-import { mutations } from "./mutations";
 import DatabaseClient from "./DatabaseClient";
-
-const schema = buildSchema(
-  `
-  type User {
-    id: String
-    name: String
-    tasklists: [Tasklist]
-  }
-  
-  type Task {
-    id: String
-    tasklistId: String
-    name: String
-    isComplete: Boolean
-  }
-
-  input TaskInput {
-    id: String
-    tasklistId: String
-    name: String
-    isComplete: Boolean
-  }
-
-  type Tasklist {
-    id: ID!
-    name: String
-    users: [User]
-  }
-   
-  type Query {
-    hello: String
-    tasklists: [Tasklist]
-    tasks(tasklist: String): [Task]
-  }
-
-  type Id {
-    id: String
-  }
-
-  type Mutation {
-    deleteTask(tasklist: String, task: String): Id
-    newTasklist(name: String, username: String): Id
-    newTask(tasklist: String, name: String): Task
-    updateTask(task: TaskInput): Task
-  }
-  `
-);
 
 (async () => {
   dotenv.config();
@@ -93,14 +42,5 @@ const schema = buildSchema(
   } catch (error) {
     console.log(`error: ${error}`);
   }
-
-  app.use(
-    "/graphql",
-    graphqlHTTP({
-      schema,
-      rootValue: { ...queries, ...mutations },
-    })
-  );
-
   app.listen(4100);
 })();

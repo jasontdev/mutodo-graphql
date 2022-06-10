@@ -1,6 +1,5 @@
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "crypto";
-import { abort } from "process";
 import { AuthorizedUser, CreateTasklistInput, CreateTaskInput } from "./types";
 
 async function createTasklist(
